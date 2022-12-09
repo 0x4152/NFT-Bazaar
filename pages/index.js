@@ -20,26 +20,30 @@ export default function Home() {
             <h1 className="py-4 px-4 font-bold text-2xl">Recently Listed</h1>
             <div className="flex flex-wrap space-x-6">
                 {isWeb3Enabled ? (
-                    loading || !listedNfts ? (
-                        <div>loading...</div>
+                    chainString == 4 ? (
+                        loading || !listedNfts ? (
+                            <div>loading...</div>
+                        ) : (
+                            listedNfts.activeItems.map((nft) => {
+                                console.log(nft)
+                                const { price, nftAddress, tokenId, seller } = nft
+                                return (
+                                    <NFTBox
+                                        price={price}
+                                        nftAddress={nftAddress}
+                                        tokenId={tokenId}
+                                        marketplaceAddress={marketplaceAddress}
+                                        seller={seller}
+                                        key={`${nftAddress}${tokenId}`}
+                                    />
+                                )
+                            })
+                        )
                     ) : (
-                        listedNfts.activeItems.map((nft) => {
-                            console.log(nft)
-                            const { price, nftAddress, tokenId, seller } = nft
-                            return (
-                                <NFTBox
-                                    price={price}
-                                    nftAddress={nftAddress}
-                                    tokenId={tokenId}
-                                    marketplaceAddress={marketplaceAddress}
-                                    seller={seller}
-                                    key={`${nftAddress}${tokenId}`}
-                                />
-                            )
-                        })
+                        <div> Please connect to the Göerli testnet </div>
                     )
                 ) : (
-                    <div> web3 currently not enabled</div>
+                    <div> Web3 currently not enabled, please connect your wallet</div>
                 )}
             </div>
         </div>
