@@ -10,7 +10,11 @@ import networkMapping from "../constants/networkMapping.json"
 import { useNotification } from "web3uikit"
 import { useState, useEffect } from "react"
 export default function Home() {
-    const [proceedsState, setProceeds] = useState(0)
+    const [itemForSale, setItemForSale] = useState(false)
+    const [sellNftState, setSellNftState] = useState({ nftAddress: 0, tokenId: 0, price: 0 })
+    const [imageURI, setImageURI] = useState("")
+    const [tokenName, setTokenName] = useState("")
+    const [tokenDescription, setTokenDescription] = useState("")
     ///////////////////////////////////////////////
     //USENOTIFICATION
     ///////////////////////////////////////////////
@@ -33,11 +37,22 @@ export default function Home() {
     ////////////
     //APPROVE///
     ////////////
-    async function approveAndList(data) {
+    const handleApproveSuccess = () => {
+        console.log("hellyeah")
+        setItemForSale(true)
+        dispatch({
+            type: "success",
+            message: "Now click sell to put it on the market",
+            title: "We recieved your approval",
+            position: "topR",
+        })
+    }
+    const approve = (data) => {
         console.log("approving...")
         const nftAddress = data.data[0].inputResult
         const tokenId = data.data[1].inputResult
         const price = ethers.utils.parseUnits(data.data[2].inputResult).toString()
+        setSellNftState({ nftAddress: nftAddress, tokenId: tokenId, price: price })
 
         //This is a different way we can call runContractFunction from Moralis, where we set params on a separate object,
 
@@ -50,9 +65,9 @@ export default function Home() {
                 tokenId: tokenId,
             },
         }
-        await runContractFunction({
+        runContractFunction({
             params: approveOptions,
-            onSuccess: () => handleApproveSuccess(nftAddress, tokenId, price),
+            onSuccess: handleApproveSuccess,
             onError: (error) => {
                 console.log(error)
             },
@@ -64,18 +79,20 @@ export default function Home() {
     //we create a separate function that will execute onSuccess of approval to our NFTMarket contract
     //it will execute the "listItem" function from our NFTMarket contract
     ////////////
-    async function handleApproveSuccess(nftAddress, tokenId, price) {
+
+    async function handleListItemCardClick() {
+        console.log(`handleListItemCardClick  sellNFTstate address ${sellNftState.nftAddress}`)
         const listOptions = {
             abi: NFTMarketABI,
             contractAddress: marketplaceAddress,
             functionName: "listItem",
             params: {
-                nftAddress: nftAddress,
-                tokenId: tokenId,
-                price: price,
+                nftAddress: sellNftState.nftAddress,
+                tokenId: sellNftState.tokenId,
+                price: sellNftState.price,
             },
         }
-
+        console.log("success, running contract function!")
         await runContractFunction({
             params: listOptions,
             onSuccess: () => handleListSuccess(),
@@ -107,45 +124,46 @@ export default function Home() {
             seller: account,
         },
     })
-    async function updateUI() {
-        const proceeds = await getProceeds()
-        console.log(proceeds.toString())
-        //ipfs gateway: everyone should be able to see the nfts
 
-        setProceeds(proceeds.toString())
-    }
-    useEffect(() => {
-        if (isWeb3Enabled) {
-            updateUI()
-            console.log(`rerendered from Sell page use effect, isWeb3Enabledd ${isWeb3Enabled}`)
-        }
-    }, [isWeb3Enabled])
-
-    /////////////////////////////////
-    //withdraw proceeds function
-    ////////////////////////////////
-    const handleWithdrawProceedsSuccess = () => {
-        dispatch({
-            type: "success",
-            message: "The proceeds from the sale of your NFT's have been sent to your accountS",
-            title: "Proceeds Withdrawn!",
-            position: "topR",
-        })
-    }
-    const { runContractFunction: withdrawProceeds } = useWeb3Contract({
-        abi: NFTMarketABI,
-        contractAddress: marketplaceAddress,
-        functionName: "withdrawProceeds",
-        params: {},
+    ////////////////////////////
+    //Showing NFT to sell//
+    ///////////////////////
+    //This part of the code is in charge of rendering an image of the NFT once it has been approved to make sure it is
+    //the correct NFT the user wanted to sell
+    const { runContractFunction: getTokenURI } = useWeb3Contract({
+        abi: NFTABI,
+        contractAddress: sellNftState.nftAddress,
+        functionName: "tokenURI",
+        params: {
+            tokenId: sellNftState.tokenId,
+        },
     })
-    const handleProceedsCardClick = () => {
-        console.log("handleProceedsCardClick")
 
-        withdrawProceeds({
-            onError: (error) => console.log(error),
-            onSuccess: handleWithdrawProceedsSuccess,
-        })
+    async function updateUIAfterApproval() {
+        const tokenURI = await getTokenURI()
+        console.log(`token URI is : ${tokenURI}`)
+        //ipfs gateway: everyone should be able to see the nfts
+        if (tokenURI) {
+            const requestURL = tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/")
+            const tokenURIResponse = await (await fetch(requestURL)).json() //first await to fetch the response JSON metadata object, await to .json it
+            const imageURI = tokenURIResponse.image //we get the image tag from the json object
+            const imageURIURL = imageURI.replace("ipfs://", "https://ipfs.io/ipfs/")
+            setImageURI(imageURIURL)
+            //this is not the best way to do it:
+            //we could render the image on the moralis server, and just call the server
+            // we could use moralis hooks: useNFTBalances() , but it only works on testnets and mainnet
+            setTokenName(tokenURIResponse.name)
+            setTokenDescription(tokenURIResponse.description)
+        }
     }
+
+    useEffect(() => {
+        if (itemForSale) {
+            updateUIAfterApproval()
+            console.log(`rerendered from Sell page use effect, itemForSale ${itemForSale}`)
+        }
+    }, [itemForSale])
+
     /////////////////////////////////////////////////////////////
     //FORM
     //We use Web3uikit Form that already handles the work of tracking state and submitting to a function
@@ -154,11 +172,11 @@ export default function Home() {
     //import { Form } from "web3uikit"
     /////////////////////////////////////////////////////////////
     return (
-        <div className="container justify-center align-middle m-10">
-            <div className="max-w-xl place-self-center justify-center space-y-16 ">
+        <div id="papa" class="block space-y-12 p-12 max-h-full content-center">
+            <div id="son" class="flex justify-center space-x-24 max-h-full">
                 <Form
                     className="p-12"
-                    onSubmit={approveAndList}
+                    onSubmit={approve}
                     title="Sell your NFT!"
                     id="Main Form"
                     data={[
@@ -183,19 +201,50 @@ export default function Home() {
                         },
                     ]}
                 />
-                <Card
-                    title="Click to withdraw your proceeds"
-                    className="justify-center text-left"
-                    onClick={handleProceedsCardClick}
-                >
-                    <div className=" text-left ">
-                        <div className="m-4">
-                            <div className="fond-bold ">
-                                {ethers.utils.formatEther(proceedsState)} ETH
+                <div class="flex h-100">
+                    <div class="m-auto font-mono">
+                        {itemForSale ? (
+                            <div>
+                                <Card
+                                    title={tokenName}
+                                    description={tokenDescription}
+                                    onClick={handleListItemCardClick}
+                                >
+                                    <div className="p-7 ">
+                                        <div className="flex flex-col items-end gap-2">
+                                            <div>#{sellNftState.tokenId}</div>
+                                            <div className="italic text-sm">Owned by you</div>
+                                            <Image
+                                                loader={() => imageURI}
+                                                src={imageURI}
+                                                height="200"
+                                                width="200"
+                                            />
+                                            <div className="fond-bold">
+                                                {ethers.utils.formatUnits(
+                                                    sellNftState.price,
+                                                    "ether"
+                                                )}{" "}
+                                                ETH
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Card>
+                                This is the NFT that will be up for sale, click on it to list it!
                             </div>
-                        </div>
+                        ) : (
+                            <div class="align-middle font-mono bg-cyan-100 h-24 rounded-lg">
+                                <div class="m-5 p-5">
+                                    <p>Click submit to approve us to sell your NFT</p>
+                                    <p>
+                                        You will be able to see a preview of your NFT with the sale
+                                        price
+                                    </p>
+                                </div>
+                            </div>
+                        )}
                     </div>
-                </Card>
+                </div>
             </div>
         </div>
     )

@@ -10,10 +10,13 @@ export default function Header() {
             <h1 className="py-4 px-4 font-bold text-3xl">NFT Bazaar</h1>
             <div className="flex flex-row items-center">
                 <Link href="/">
-                    <a className="mr-4 p-6"> Home </a>
+                    <a className="mr-4 p-6 font-bold"> NFTs for Sale </a>
                 </Link>
                 <Link href="/sell-page">
-                    <a className="mr-4 p-6"> Sell NFT </a>
+                    <a className="mr-4 p-6 font-bold"> Sell your NFT </a>
+                </Link>
+                <Link href="/withdraw">
+                    <a className="mr-4 p-6 font-bold"> Withdraw proceeds </a>
                 </Link>
 
                 <ConnectButton moralisAuth={false} />

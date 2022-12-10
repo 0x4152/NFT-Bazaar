@@ -28,20 +28,22 @@ export default function Home() {
                         ) : (
                             <div>
                                 <div className="py-4 px-4">Click on the NFT to buy it! </div>
-                                {listedNfts.activeItems.map((nft) => {
-                                    console.log(nft)
-                                    const { price, nftAddress, tokenId, seller } = nft
-                                    return (
-                                        <NFTBox
-                                            price={price}
-                                            nftAddress={nftAddress}
-                                            tokenId={tokenId}
-                                            marketplaceAddress={marketplaceAddress}
-                                            seller={seller}
-                                            key={`${nftAddress}${tokenId}`}
-                                        />
-                                    )
-                                })}
+                                <div className="flex flex-wrap space-x-6">
+                                    {listedNfts.activeItems.map((nft) => {
+                                        console.log(nft)
+                                        const { price, nftAddress, tokenId, seller } = nft
+                                        return (
+                                            <NFTBox
+                                                price={price}
+                                                nftAddress={nftAddress}
+                                                tokenId={tokenId}
+                                                marketplaceAddress={marketplaceAddress}
+                                                seller={seller}
+                                                key={`${nftAddress}${tokenId}`}
+                                            />
+                                        )
+                                    })}
+                                </div>
                             </div>
                         )
                     ) : (
