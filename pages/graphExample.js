@@ -4,7 +4,7 @@ import { useQuery, gql } from "@apollo/client"
 //we can build the query on theGraph playground and add it after
 const GET_ACTIVE_ITEMS = gql`
     {
-        activeItems(first: 5, where: { buyer: "0x00000000" }) {
+        activeItems(first: 8, where: { buyer: "0x00000000" }) {
             id
             buyerseller
             nftAddress

@@ -90,7 +90,7 @@ export default function Home() {
             <Card title="Click to withdraw your proceeds" onClick={handleProceedsCardClick}>
                 <div className=" text-left ">
                     <div className="m-4">
-                        <div className="fond-bold ">
+                        <div className="fond-bold font-mono">
                             {ethers.utils.formatEther(proceedsState)} ETH
                         </div>
                     </div>

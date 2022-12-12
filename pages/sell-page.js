@@ -115,15 +115,6 @@ export default function Home() {
             position: "topR",
         })
     }
-    //////
-    const { runContractFunction: getProceeds } = useWeb3Contract({
-        abi: NFTMarketABI,
-        contractAddress: marketplaceAddress,
-        functionName: "getProceeds",
-        params: {
-            seller: account,
-        },
-    })
 
     ////////////////////////////
     //Showing NFT to sell//
@@ -211,16 +202,18 @@ export default function Home() {
                                     onClick={handleListItemCardClick}
                                 >
                                     <div className="p-7 ">
-                                        <div className="flex flex-col items-end gap-2">
+                                        <div className="flex flex-col items-end gap-2 font-mono">
                                             <div>#{sellNftState.tokenId}</div>
-                                            <div className="italic text-sm">Owned by you</div>
+                                            <div className="italic text-sm font-mono">
+                                                Owned by you
+                                            </div>
                                             <Image
                                                 loader={() => imageURI}
                                                 src={imageURI}
                                                 height="200"
                                                 width="200"
                                             />
-                                            <div className="fond-bold">
+                                            <div className="fond-bold font-mono">
                                                 {ethers.utils.formatUnits(
                                                     sellNftState.price,
                                                     "ether"

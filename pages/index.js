@@ -20,17 +20,19 @@ export default function Home() {
             <h1 className="py-4 px-4 font-bold text-2xl">
                 {chainString != 5 ? "Please connect to the Göerli testnet" : "Recently Listed NFTs"}
             </h1>
-            <div className="flex flex-wrap space-x-6">
+            <div className="space-x-6">
                 {isWeb3Enabled ? (
                     chainString == 5 ? (
                         loading || !listedNfts ? (
-                            <div>loading...</div>
+                            <div class="font-mono">loading...</div>
                         ) : (
                             <div>
-                                <div className="py-4 px-4">Click on the NFT to buy it! </div>
+                                <div className="py-4 px-4 font-mono">
+                                    Click on the NFT to buy it!{" "}
+                                </div>
+                                {console.log(listedNfts)}
                                 <div className="flex flex-wrap space-x-6">
                                     {listedNfts.activeItems.map((nft) => {
-                                        console.log(nft)
                                         const { price, nftAddress, tokenId, seller } = nft
                                         return (
                                             <NFTBox
@@ -47,10 +49,13 @@ export default function Home() {
                             </div>
                         )
                     ) : (
-                        <div className="py-4 px-4"> Thank you for your patience </div>
+                        <div className="py-4 px-4 font-mono"> Thank you for your patience </div>
                     )
                 ) : (
-                    <div> Web3 currently not enabled, please connect your wallet</div>
+                    <div class="font-mono">
+                        {" "}
+                        Web3 currently not enabled, please connect your wallet
+                    </div>
                 )}
             </div>
         </div>

@@ -78,7 +78,7 @@ export default function NFTBox({ price, nftAddress, tokenId, marketplaceAddress,
     //////////////////////////////////////////////////////////////////////////////////////////////
     async function updateUI() {
         const tokenURI = await getTokenURI()
-        console.log(`token URI is : ${tokenURI}`)
+
         //ipfs gateway: everyone should be able to see the nfts
         if (tokenURI) {
             const requestURL = tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/")
@@ -97,7 +97,6 @@ export default function NFTBox({ price, nftAddress, tokenId, marketplaceAddress,
     useEffect(() => {
         if (isWeb3Enabled) {
             updateUI()
-            console.log(`rerendered from NFTbox useffect, isWeb3Enabledd ${isWeb3Enabled}`)
         }
     }, [isWeb3Enabled])
 
@@ -148,8 +147,8 @@ export default function NFTBox({ price, nftAddress, tokenId, marketplaceAddress,
                         >
                             <div className="p-7 ">
                                 <div className="flex flex-col items-end gap-2">
-                                    <div>#{tokenId}</div>
-                                    <div className="italic text-sm">
+                                    <div class="font-mono">#{tokenId}</div>
+                                    <div className="italic text-sm font-mono">
                                         Owned by {formattedSellerAddress}
                                     </div>
                                     <Image
@@ -158,7 +157,7 @@ export default function NFTBox({ price, nftAddress, tokenId, marketplaceAddress,
                                         height="200"
                                         width="200"
                                     />
-                                    <div className="fond-bold">
+                                    <div className="fond-bold font-mono">
                                         {ethers.utils.formatUnits(price, "ether")} ETH
                                     </div>
                                 </div>
@@ -166,7 +165,7 @@ export default function NFTBox({ price, nftAddress, tokenId, marketplaceAddress,
                         </Card>
                     </div>
                 ) : (
-                    <div> loading...</div>
+                    <div class="font-mono"> loading...</div>
                 )}
             </div>
         </div>

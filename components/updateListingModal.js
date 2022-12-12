@@ -17,7 +17,7 @@ export default function UpdateListingModal({
 }) {
     const [priceToUpdateListingWith, setPriceToUpdateListingWith] = useState(0)
     const dispatch = useNotification()
-    console.log(priceToUpdateListingWith)
+
     /////////////////////////////////////////////////////////////////
     //this function will be called on success after making the smart contract call to update listing
     // its important that the smart contract call always returns the transaction, therefore we can use wait
@@ -71,12 +71,11 @@ export default function UpdateListingModal({
         setPriceToUpdateListingWith("0")
     }
     const handleDeleteCLick = () => {
-        console.log("handleDeleteClick")
-
         cancelListing({
             onError: (error) => console.log(error),
             onSuccess: (tx) => handleCancelListingSuccess(tx),
         })
+        onClose && onClose()
     }
     return (
         <Modal
